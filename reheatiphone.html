@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Reheat Tool</title>
+    <style>
+        /* SIMPLE, COMPATIBLE STYLES FOR EMAIL PREVIEW */
+        :root {
+            --bg-color: #121212;
+            --panel-bg: #1e1e1e;
+            --wire-r: #e74c3c;
+            --wire-y: #f1c40f;
+            --wire-w: #ecf0f1;
+            --wire-g: #2ecc71;
+            --accent-blue: #3498db;
+        }
+
+        * {
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #121212;
+            color: white;
+            margin: 0;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+
+        h1 { 
+            text-align: center; 
+            font-size: 22px; 
+            margin: 10px 0 20px 0; 
+            color: #fff; 
+        }
+
+        /* BIG BANNER FOR IOS */
+        #ios-instructions {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 3px solid #3498db;
+        }
+        
+        #ios-instructions h3 {
+            margin-top: 0;
+            color: #3498db;
+            text-align: center;
+        }
+        
+        .ios-step {
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        .ios-step strong {
+            color: #f1c40f;
+        }
+        
+        .ios-button {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 15px 0;
+            text-align: center;
+            text-decoration: none;
+        }
+        
+        .ios-button:active {
+            background: #2980b9;
+        }
+
+        /* TABS */
+        .tabs { 
+            display: flex; 
+            gap: 5px; 
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            flex: 1;
+            min-width: 100px;
+            padding: 15px 10px;
+            background: #2c3e50;
+            border: none;
+            color: #95a5a6;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .tab.active {
+            background: #3498db;
+            color: white;
+        }
+
+        /* SECTIONS */
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+
+        /* SIMPLE CONTROL BOX */
+        .box {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+        }
+        
+        .box h3 {
+            margin-top: 0;
+            color: #3498db;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+
+        /* SUPER SIMPLE SLIDERS FOR EMAIL PREVIEW */
+        .simple-slider {
+            width: 100%;
+            height: 50px; /* BIG for email preview */
+            margin: 15px 0;
+        }
+        
+        .slider-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        /* TERMINAL VISUAL */
+        .terminal-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .terminal {
+            background: #2c3e50;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 18px;
+            border: 2px solid #333;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .terminal.active-r { border-color: #e74c3c; background: rgba(231, 76, 60, 0.1); }
+        .terminal.active-y { border-color: #f1c40f; background: rgba(241, 196, 15, 0.1); }
+        .terminal.active-w { border-color: #ecf0f1; background: rgba(236, 240, 241, 0.1); }
+        .terminal.active-g { border-color: #2ecc71; background: rgba(46, 204, 113, 0.1); }
+
+        /* SYSTEM STATUS */
+        .system-status {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 15px;
+            background: #111;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #333;
+        }
+        
+        .status-cool { color: #3498db; border-color: #3498db; }
+        .status-reheat { color: #e67e22; border-color: #e67e22; }
+        .status-heat { color: #e74c3c; border-color: #e74c3c; }
+
+        /* INPUTS */
+        .input-row {
+            margin: 20px 0;
+        }
+        
+        .input-row label {
+            display: block;
+            margin-bottom: 8px;
+            color: #bdc3c7;
+            font-size: 16px;
+        }
+        
+        .number-input {
+            width: 100%;
+            padding: 15px;
+            background: #111;
+            border: 2px solid #333;
+            border-radius: 8px;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .calc-button {
+            width: 100%;
+            padding: 20px;
+            background: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        
+        .result {
+            background: #000;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 5px solid #2ecc71;
+            display: none;
+        }
+        
+        .result h2 {
+            margin-top: 0;
+            color: white;
+            font-size: 24px;
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* HIDE UNNECESSARY ELEMENTS IN EMAIL PREVIEW */
+        @media (max-width: 500px) {
+            .terminal-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🔧 Active Reheat Tool</h1>
+    
+    <!-- iOS INSTRUCTIONS - ALWAYS SHOW -->
+    <div id="ios-instructions">
+        <h3>📱 iPhone Users - READ THIS:</h3>
+        
+        <div class="ios-step">
+            <strong>If sliders don't work:</strong> Tap the <strong>share icon</strong> (📤) at bottom, then tap "Save to Files"
+        </div>
+        
+        <div class="ios-step">
+            <strong>Then:</strong> Open <strong>Files app</strong>, find this file, tap it to open in Safari
+        </div>
+        
+        <div class="ios-step">
+            <strong>Alternative:</strong> Copy this entire email to <strong>Notes app</strong>, then tap the link
+        </div>
+        
+        <button class="ios-button" onclick="hideInstructions()">Got it, hide instructions</button>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab active" data-tab="sim">Simulator</button>
+        <button class="tab" data-tab="calc1">Airflow</button>
+        <button class="tab" data-tab="calc2">Capacity</button>
+    </div>
+
+    <!-- SIMULATOR -->
+    <div id="sim" class="section active">
+        <div class="box">
+            <div id="sys-status" class="system-status">SYSTEM IDLE</div>
+            
+            <h3>Terminal Status</h3>
+            <div class="terminal-grid">
+                <div class="terminal active-r" id="term-r">R</div>
+                <div class="terminal" id="term-y">Y</div>
+                <div class="terminal" id="term-w">W</div>
+                <div class="terminal" id="term-g">G</div>
+                <div class="terminal" id="term-u1in">U1 IN</div>
+                <div class="terminal" id="term-u1out">U1 OUT</div>
+            </div>
+            
+            <h3>Room Conditions</h3>
+            
+            <div class="input-row">
+                <label>Temperature: <span id="temp-value" class="slider-value">73°F</span></label>
+                <input type="range" class="simple-slider" id="temp-slider" min="65" max="80" step="1" value="73">
+            </div>
+            
+            <div class="input-row">
+                <label>Humidity: <span id="hum-value" class="slider-value">60%</span></label>
+                <input type="range" class="simple-slider" id="hum-slider" min="30" max="90" step="1" value="60">
+            </div>
+            
+            <h3>Settings</h3>
+            
+            <div class="input-row">
+                <label>Cool Setpoint (°F)</label>
+                <input type="number" class="number-input" id="set-cool" value="75">
+            </div>
+            
+            <div class="input-row">
+                <label>Heat Setpoint (°F)</label>
+                <input type="number" class="number-input" id="set-heat" value="72">
+            </div>
+            
+            <div class="input-row">
+                <label>Dehum Setpoint (%)</label>
+                <input type="number" class="number-input" id="set-dehum" value="50">
+            </div>
+            
+            <button class="calc-button" id="update-btn">Update Simulation</button>
+        </div>
+    </div>
+
+    <!-- AIRFLOW CALC -->
+    <div id="calc1" class="section">
+        <div class="box">
+            <h3>Electric Heat Airflow Calculator</h3>
+            
+            <div class="input-row">
+                <label>Voltage (V)</label>
+                <input type="number" class="number-input" id="calc-volts" value="240" placeholder="240">
+            </div>
+            
+            <div class="input-row">
+                <label>Amperage (A)</label>
+                <input type="number" class="number-input" id="calc-amps" value="40" placeholder="40">
+            </div>
+            
+            <div class="input-row">
+                <label>Supply Air Temp (°F)</label>
+                <input type="number" class="number-input" id="calc-supply" value="105" placeholder="105">
+            </div>
+            
+            <div class="input-row">
+                <label>Return Air Temp (°F)</label>
+                <input type="number" class="number-input" id="calc-return" value="70" placeholder="70">
+            </div>
+            
+            <button class="calc-button" id="calc-cfm-btn">Calculate CFM</button>
+            
+            <div id="cfm-result" class="result">
+                <h2 id="cfm-value">0 CFM</h2>
+                <p>Heat Output: <span id="btu-value" style="color:#3498db; font-weight:bold;">0</span> BTUH</p>
+                <p>Temperature Rise: <span id="rise-value" style="color:#3498db; font-weight:bold;">0</span> °F</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CAPACITY CALC -->
+    <div id="calc2" class="section">
+        <div class="box">
+            <h3>Dehumidification Capacity</h3>
+            
+            <div class="input-row">
+                <label>Airflow (CFM)</label>
+                <input type="number" class="number-input" id="cap-cfm" value="1200">
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
+                <div>
+                    <label style="display:block; margin-bottom:5px;"><strong>Return Air</strong></label>
+                    <input type="number" class="number-input" id="cap-rdb" value="75" placeholder="DB">
+                    <input type="number" class="number-input" id="cap-rwb" value="63" placeholder="WB" style="margin-top:10px;">
+                </div>
+                <div>
+                    <label style="display:block; margin-bottom:5px;"><strong>Supply Air</strong></label>
+                    <input type="number" class="number-input" id="cap-sdb" value="55" placeholder="DB">
+                    <input type="number" class="number-input" id="cap-swb" value="54" placeholder="WB" style="margin-top:10px;">
+                </div>
+            </div>
+            
+            <button class="calc-button" id="calc-cap-btn">Calculate Capacity</button>
+            
+            <div id="cap-result" class="result">
+                <h2 id="pints-value">0 Pints/Hr</h2>
+                <p>Total Capacity: <span id="total-btu" style="color:#3498db; font-weight:bold;">0</span> BTUH</p>
+                <p>Sensible: <span id="sens-btu" style="color:#3498db; font-weight:bold;">0</span> BTUH</p>
+                <p>Latent: <span id="lat-btu" style="color:#3498db; font-weight:bold;">0</span> BTUH</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Created by Clint and Gemini 2025<br>
+        <small>For best results on iPhone: Save to Files app first</small>
+    </div>
+
+    <script>
+        // ====== SIMPLE, BULLETPROOF JAVASCRIPT ======
+        
+        // 1. HIDE INSTRUCTIONS BUTTON
+        function hideInstructions() {
+            document.getElementById('ios-instructions').style.display = 'none';
+        }
+        
+        // 2. TAB SWITCHING
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active from all tabs
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                // Add active to clicked
+                this.classList.add('active');
+                
+                // Get tab id
+                const tabId = this.getAttribute('data-tab');
+                
+                // Hide all sections
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // Show selected
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // 3. SLIDER UPDATES - SIMPLE VERSION
+        const tempSlider = document.getElementById('temp-slider');
+        const humSlider = document.getElementById('hum-slider');
+        
+        function updateSliderDisplay() {
+            document.getElementById('temp-value').textContent = tempSlider.value + '°F';
+            document.getElementById('hum-value').textContent = humSlider.value + '%';
+            updateSimulation();
+        }
+        
+        // Multiple events for compatibility
+        tempSlider.addEventListener('input', updateSliderDisplay);
+        tempSlider.addEventListener('change', updateSliderDisplay);
+        
+        humSlider.addEventListener('input', updateSliderDisplay);
+        humSlider.addEventListener('change', updateSliderDisplay);
+        
+        // 4. SIMULATION LOGIC
+        function updateSimulation() {
+            // Get values
+            const temp = parseFloat(tempSlider.value);
+            const hum = parseFloat(humSlider.value);
+            const coolSet = parseFloat(document.getElementById('set-cool').value) || 75;
+            const heatSet = parseFloat(document.getElementById('set-heat').value) || 72;
+            const dehumSet = parseFloat(document.getElementById('set-dehum').value) || 50;
+            
+            // Logic
+            const callCool = temp > coolSet;
+            const callHeat = temp < heatSet;
+            const callDehum = hum > dehumSet;
+            
+            let y = false, w = false, g = false, u1 = false;
+            let status = "SYSTEM IDLE";
+            let statusClass = "";
+            
+            if (callDehum) {
+                u1 = true;
+                y = true;
+                
+                if (callHeat) {
+                    w = true;
+                    status = "ACTIVE REHEAT";
+                    statusClass = "status-reheat";
+                } else if (callCool) {
+                    status = "COOLING + DEHUM";
+                    statusClass = "status-cool";
+                } else {
+                    status = "COOL TO DRY";
+                    statusClass = "status-cool";
+                }
+            } else {
+                if (callCool) {
+                    y = true;
+                    status = "COOLING";
+                    statusClass = "status-cool";
+                } else if (callHeat) {
+                    w = true;
+                    status = "HEATING";
+                    statusClass = "status-heat";
+                }
+            }
+            
+            if (y || w) g = true;
+            
+            // Update status display
+            const statusEl = document.getElementById('sys-status');
+            statusEl.textContent = status;
+            statusEl.className = "system-status " + statusClass;
+            
+            // Update terminals
+            updateTerminal('term-r', true, 'active-r');
+            updateTerminal('term-y', y, 'active-y');
+            updateTerminal('term-w', w, 'active-w');
+            updateTerminal('term-g', g, 'active-g');
+            updateTerminal('term-u1in', u1, 'active-r');
+            updateTerminal('term-u1out', u1, 'active-y');
+        }
+        
+        function updateTerminal(id, active, activeClass) {
+            const el = document.getElementById(id);
+            if (active) {
+                el.classList.add(activeClass);
+            } else {
+                el.classList.remove('active-r', 'active-y', 'active-w', 'active-g');
+            }
+        }
+        
+        // 5. UPDATE BUTTON
+        document.getElementById('update-btn').addEventListener('click', updateSimulation);
+        
+        // Also update when number inputs change
+        document.getElementById('set-cool').addEventListener('input', updateSimulation);
+        document.getElementById('set-heat').addEventListener('input', updateSimulation);
+        document.getElementById('set-dehum').addEventListener('input', updateSimulation);
+        
+        // 6. AIRFLOW CALCULATOR
+        document.getElementById('calc-cfm-btn').addEventListener('click', function() {
+            const volts = parseFloat(document.getElementById('calc-volts').value);
+            const amps = parseFloat(document.getElementById('calc-amps').value);
+            const supply = parseFloat(document.getElementById('calc-supply').value);
+            const returnTemp = parseFloat(document.getElementById('calc-return').value);
+            
+            if (!volts || !amps || !supply || !returnTemp) {
+                alert("Please fill all fields");
+                return;
+            }
+            
+            const btuh = volts * amps * 3.413;
+            const deltaT = Math.abs(supply - returnTemp);
+            const cfm = btuh / (deltaT * 1.08);
+            
+            document.getElementById('cfm-value').textContent = Math.round(cfm) + " CFM";
+            document.getElementById('btu-value').textContent = Math.round(btuh);
+            document.getElementById('rise-value').textContent = deltaT.toFixed(1);
+            document.getElementById('cfm-result').style.display = 'block';
+            
+            // Auto-fill capacity calculator
+            document.getElementById('cap-cfm').value = Math.round(cfm);
+        });
+        
+        // 7. CAPACITY CALCULATOR
+        document.getElementById('calc-cap-btn').addEventListener('click', function() {
+            const cfm = parseFloat(document.getElementById('cap-cfm').value);
+            const rwb = parseFloat(document.getElementById('cap-rwb').value);
+            const swb = parseFloat(document.getElementById('cap-swb').value);
+            const rdb = parseFloat(document.getElementById('cap-rdb').value);
+            const sdb = parseFloat(document.getElementById('cap-sdb').value);
+            
+            if (!cfm) {
+                alert("Enter Airflow (CFM)");
+                return;
+            }
+            
+            // Simple enthalpy approximation
+            const getEnthalpy = (wb) => {
+                if (wb < 50) return 20;
+                if (wb < 55) return 20.3 + (wb-50)*0.58;
+                if (wb < 60) return 23.2 + (wb-55)*0.66;
+                if (wb < 65) return 26.5 + (wb-60)*0.72;
+                if (wb < 70) return 30.1 + (wb-65)*0.80;
+                return 34.1;
+            };
+            
+            const hDelta = getEnthalpy(rwb) - getEnthalpy(swb);
+            const total = 4.5 * cfm * hDelta;
+            const sensible = 1.08 * cfm * (rdb - sdb);
+            const latent = total - sensible;
+            const pints = latent / 1054;
+            
+            document.getElementById('pints-value').textContent = pints.toFixed(1) + " Pints/Hr";
+            document.getElementById('total-btu').textContent = Math.round(total);
+            document.getElementById('sens-btu').textContent = Math.round(sensible);
+            document.getElementById('lat-btu').textContent = Math.round(latent);
+            document.getElementById('cap-result').style.display = 'block';
+        });
+        
+        // 8. INITIALIZE
+        updateSimulation();
+        
+        // 9. ADD TOUCH SUPPORT FOR EMAIL PREVIEW
+        document.addEventListener('touchstart', function(e) {
+            // Prevent double-tap zoom in email preview
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        // 10. SHOW A LOAD MESSAGE
+        console.log("Active Reheat Tool Loaded");
+        console.log("If sliders don't work in email, save to Files app and open in Safari");
+        
+    </script>
+</body>
+</html>
