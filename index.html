@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HVAC Pro Suite</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://unpkg.com/feather-icons"></script>
+
+    <style>
+        body { 
+            background-color: #0f172a; 
+            color: #f8fafc; 
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Glassmorphism Effect */
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Button Animation */
+        .btn-card {
+            transition: all 0.2s ease;
+        }
+        .btn-card:active {
+            transform: scale(0.96);
+            background: rgba(30, 41, 59, 0.9);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-900 to-black">
+
+    <div class="text-center mb-10">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 mb-4 shadow-lg shadow-cyan-500/20">
+            <i data-feather="grid" class="text-white" width="32" height="32"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-white tracking-tight">HVAC Pro Suite</h1>
+        <p class="text-slate-400 text-sm mt-2 font-medium">Technician Toolkit</p>
+    </div>
+
+    <div class="w-full max-w-sm space-y-4">
+        
+        <a href="logger.html" class="glass btn-card block p-5 rounded-2xl flex items-center gap-5 group border border-slate-700/50 hover:border-cyan-500/50">
+            <div class="p-3.5 bg-cyan-500/10 rounded-xl text-cyan-400 group-hover:text-white group-hover:bg-cyan-500 transition-colors">
+                <i data-feather="clipboard" width="24" height="24"></i>
+            </div>
+            <div>
+                <h2 class="font-bold text-lg text-white">Dispatch Logger</h2>
+                <p class="text-slate-400 text-xs font-medium">Track jobs, hours & notes</p>
+            </div>
+            <div class="ml-auto text-slate-500">
+                <i data-feather="chevron-right" width="20" height="20"></i>
+            </div>
+        </a>
+
+        <a href="capacitorcheck.html" class="glass btn-card block p-5 rounded-2xl flex items-center gap-5 group border border-slate-700/50 hover:border-amber-500/50">
+            <div class="p-3.5 bg-amber-500/10 rounded-xl text-amber-400 group-hover:text-white group-hover:bg-amber-500 transition-colors">
+                <i data-feather="zap" width="24" height="24"></i>
+            </div>
+            <div>
+                <h2 class="font-bold text-lg text-white">Capacitor Check</h2>
+                <p class="text-slate-400 text-xs font-medium">Verify MFD under load</p>
+            </div>
+            <div class="ml-auto text-slate-500">
+                <i data-feather="chevron-right" width="20" height="20"></i>
+            </div>
+        </a>
+
+        <a href="reheatiphone.html" class="glass btn-card block p-5 rounded-2xl flex items-center gap-5 group border border-slate-700/50 hover:border-red-500/50">
+            <div class="p-3.5 bg-red-500/10 rounded-xl text-red-400 group-hover:text-white group-hover:bg-red-500 transition-colors">
+                <i data-feather="thermometer" width="24" height="24"></i>
+            </div>
+            <div>
+                <h2 class="font-bold text-lg text-white">Reheat Calc</h2>
+                <p class="text-slate-400 text-xs font-medium">KW & Temp Rise Calculator</p>
+            </div>
+            <div class="ml-auto text-slate-500">
+                <i data-feather="chevron-right" width="20" height="20"></i>
+            </div>
+        </a>
+
+    </div>
+
+    <div class="mt-12 text-slate-600 text-[10px] font-mono uppercase tracking-widest">
+        v1.0 • Canton, TX
+    </div>
+
+    <script>
+        // Initialize Feather Icons
+        feather.replace();
+    </script>
+
+</body>
+</html>
