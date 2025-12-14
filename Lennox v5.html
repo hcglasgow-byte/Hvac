@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lennox Omni-Tool v5</title>
+    <style>
+        :root {
+            --red: #C8102E;
+            --dark-red: #9b0b22;
+            --slate: #2c3e50;
+            --bg: #f4f7f6;
+            --white: #ffffff;
+            --border: #e1e4e8;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: #333;
+            margin: 0;
+            padding-bottom: 90px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--red) 0%, var(--dark-red) 100%);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        header h1 { margin: 0; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; }
+        header p { margin: 5px 0 0; opacity: 0.9; font-size: 0.85rem; }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 15px; }
+
+        /* Cards */
+        .card {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+            overflow: hidden;
+            border-top: 4px solid var(--slate);
+        }
+        .card-header {
+            padding: 15px 20px;
+            background: #fff;
+            border-bottom: 2px solid var(--border);
+            font-weight: 700;
+            color: var(--slate);
+            font-size: 1.1rem;
+        }
+
+        /* Inputs & Buttons */
+        .tool-padding { padding: 20px; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 10px; }
+        
+        input, select {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+        }
+        input:focus, select:focus { border-color: var(--red); }
+        
+        button.action-btn {
+            padding: 0 20px;
+            background: var(--red);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Results & Outputs */
+        .result-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 5px solid var(--slate);
+            border-radius: 6px;
+            display: none;
+        }
+        .code-match { margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+
+        /* Tables */
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th { 
+            background: var(--slate); color: white; 
+            padding: 12px 15px; text-align: left; 
+            font-size: 0.85rem; text-transform: uppercase; 
+        }
+        td { 
+            padding: 14px 15px; border-bottom: 1px solid var(--border); 
+            vertical-align: top; font-size: 0.9rem; 
+        }
+        tr:nth-child(even) { background-color: #fcfcfc; }
+
+        /* Badges */
+        .badge {
+            display: inline-block; padding: 3px 6px; border-radius: 4px;
+            font-size: 0.7rem; font-weight: 800; text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .b-mod { background: #e3f2fd; color: #1565c0; }
+        .b-std { background: #e8f5e9; color: #2e7d32; }
+        .b-old { background: #eceff1; color: #546e7a; }
+        .b-alert { background: #ffebee; color: #c62828; }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: white; display: flex; justify-content: space-around;
+            padding: 12px 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            z-index: 2000;
+        }
+        .nav-item {
+            background: none; border: none; color: #999;
+            font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+        }
+        .nav-item.active { color: var(--red); }
+        .nav-icon { font-size: 1.4rem; }
+
+        /* Tabs */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        @media (max-width: 600px) {
+            .input-group { flex-direction: column; }
+            button.action-btn { width: 100%; padding: 12px; }
+            th, td { padding: 10px; font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Lennox Omni-Tool</h1>
+    <p>Complete Reference v5.0</p>
+</header>
+
+<div class="container">
+
+    <div id="tab-tools" class="tab-content active">
+        
+        <div class="card" style="border-top-color: #27ae60;">
+            <div class="card-header">📅 Universal Serial Decoder</div>
+            <div class="tool-padding">
+                <div class="input-group">
+                    <input type="text" id="serialInput" placeholder="Ex: 5898G 07568 or 51H845">
+                    <button class="action-btn" onclick="decodeSerial()">Decode</button>
+                </div>
+                <div id="serialResult" class="result-box"></div>
+            </div>
+        </div>
+
+        <div class="card" style="border-top-color: #2980b9;">
+            <div class="card-header">🔢 Modern Fault Search (7-Segment)</div>
+            <div class="tool-padding">
+                <div style="font-size:0.85rem; color:#666; margin-bottom:10px;">
+                    Enter the code from the display (e.g., "292", "228", "E227"):
+                </div>
+                <div class="input-group">
+                    <input type="text" id="digitalCodeInput" placeholder="Enter Code (e.g. 201)">
+                    <button class="action-btn" onclick="lookupDigitalCode()">Search</button>
+                </div>
+                <div id="digitalResult" class="result-box" style="border-left-color: #2980b9;"></div>
+            </div>
+        </div>
+
+        <div class="card" style="border-top-color: #f39c12;">
+            <div class="card-header">🚨 Legacy LED Translator (SureLight)</div>
+            <div class="tool-padding">
+                <div class="input-group">
+                    <select id="ledSelect" onchange="checkLedFault()">
+                        <option value="">-- Select LED Pattern --</option>
+                        <option value="off">Both LEDs OFF</option>
+                        <option value="slow">Slow Flash (Heartbeat)</option>
+                        <option value="fast">Fast Flash (Call for Heat)</option>
+                        <option value="alt_slow">Alternating Slow (Watchguard)</option>
+                        <option value="alt_fast">Alternating Fast (Ground/Polarity)</option>
+                        <option value="red_on">Red ON / Green OFF (Board Fault)</option>
+                        <option value="red_slow_green_on">Red Slow / Green ON (Limit)</option>
+                        <option value="red_off_green_slow">Red OFF / Green Slow (Pressure)</option>
+                    </select>
+                </div>
+                <div id="ledResult" class="result-box" style="border-left-color: #f39c12; background:#fff8e1;"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="tab-furnaces" class="tab-content">
+        
+        <div class="card">
+            <div class="card-header">Modern Era (2010s – Present)</div>
+            <div class="table-responsive">
+                <table>
+                    <thead><tr><th>Model</th><th>Specs</th><th>Field Notes</th><th>Docs</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><b>SLP98V</b></td>
+                            <td><span class="badge b-mod">98% MOD VS</span></td>
+                            <td>Signature Series. Modulating (35-100%). Communicating. 7-Segment display. The flagship.</td>
+                            <td><button onclick="findManual('Lennox SLP98V')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>SL280V</b></td>
+                            <td><span class="badge b-mod">80% 2-STG VS</span></td>
+                            <td>Signature 80%. Variable speed inducer & blower. Very quiet for an 80% unit.</td>
+                            <td><button onclick="findManual('Lennox SL280V')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>EL296V</b></td>
+                            <td><span class="badge b-std">96% 2-STG VS</span></td>
+                            <td>Elite Series. 2-Stage heat, VS Blower. 7-Segment display on board.</td>
+                            <td><button onclick="findManual('Lennox EL296V')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>EL296E</b></td>
+                            <td><span class="badge b-std">96% 2-STG CT</span></td>
+                            <td>"E" = High Efficiency Constant Torque motor (X13). Not full variable speed.</td>
+                            <td><button onclick="findManual('Lennox EL296E')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>ML193/195</b></td>
+                            <td><span class="badge b-std">93-95% 1-STG</span></td>
+                            <td>Merit Series condensing. Basic builder grade high efficiency.</td>
+                            <td><button onclick="findManual('Lennox ML195')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>ML180</b></td>
+                            <td><span class="badge b-old">80% 1-STG</span></td>
+                            <td>Merit Series 80%. The modern replacement for the G40. Simple, robust.</td>
+                            <td><button onclick="findManual('Lennox ML180')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">Transitional Era (SureLight G-Series)</div>
+            <div class="table-responsive">
+                <table>
+                    <thead><tr><th>Model</th><th>Specs</th><th>Field Notes</th><th>Docs</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><b>G71</b></td>
+                            <td><span class="badge b-mod">90%+ MOD</span></td>
+                            <td>Pre-SLP98. Early modulating unit. Complex dip switch settings.</td>
+                            <td><button onclick="findManual('Lennox G71MPP')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>G61</b></td>
+                            <td><span class="badge b-std">90% 2-STG</span></td>
+                            <td>Very common. Check collector box for water leaks.</td>
+                            <td><button onclick="findManual('Lennox G61')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>G60</b></td>
+                            <td><span class="badge b-std">80% 2-STG</span></td>
+                            <td>Two-stage 80%. Often has a variable speed blower option (G60V).</td>
+                            <td><button onclick="findManual('Lennox G60')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>G50 / G51</b></td>
+                            <td><span class="badge b-old">80% 1-STG</span></td>
+                            <td>Elite Series. Insulated cabinet upgrade from G40. Reliable.</td>
+                            <td><button onclick="findManual('Lennox G51')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>G40 / G43</b></td>
+                            <td><span class="badge b-old">80% 1-STG</span></td>
+                            <td><b>The Builder Special.</b> Short cabinet. Millions installed. Watch for blower relay failure.</td>
+                            <td><button onclick="findManual('Lennox G40')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>G32</b></td>
+                            <td><span class="badge b-mod">90% VS</span></td>
+                            <td>"Elite 90" with V-Speed. Premium 90s unit.</td>
+                            <td><button onclick="findManual('Lennox G32')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>G29</b></td>
+                            <td><span class="badge b-old">80% 1-STG</span></td>
+                            <td>Early SureLight 80%. Often looks like a G26 but non-condensing.</td>
+                            <td><button onclick="findManual('Lennox G29')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>G26</b></td>
+                            <td><span class="badge b-std">90% 1-STG</span></td>
+                            <td>"Elite 90". The standard 90% of the late 90s. Board grounds through chassis!</td>
+                            <td><button onclick="findManual('Lennox G26')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>G25</b></td>
+                            <td><span class="badge b-mod">80% VS</span></td>
+                            <td>"CustomHeat". Rare 80% with early variable speed motor.</td>
+                            <td><button onclick="findManual('Lennox G25')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>G24</b></td>
+                            <td><span class="badge b-old">80% Multi</span></td>
+                            <td>Multi-position 80%. High build quality.</td>
+                            <td><button onclick="findManual('Lennox G24')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>G23</b></td>
+                            <td><span class="badge b-old">80% Std</span></td>
+                            <td>The standard mid-efficiency unit before the G40 took over.</td>
+                            <td><button onclick="findManual('Lennox G23')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">Legendary Era (Pre-SureLight)</div>
+            <div class="table-responsive">
+                <table>
+                    <thead><tr><th>Model</th><th>Specs</th><th>Field Notes</th><th>Docs</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><b>G21</b></td>
+                            <td><span class="badge b-mod">Pulse 21</span></td>
+                            <td>Refined Pulse. Glow stick igniter (not spark plug). "Motorboat" sound.</td>
+                            <td><button onclick="findManual('Lennox G21 Pulse')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>G20</b></td>
+                            <td><span class="badge b-old">Whisper</span></td>
+                            <td>"WhisperHeat". Clamshell door. <b>Check 'Duracurve' HX dimples!</b></td>
+                            <td><button onclick="findManual('Lennox G20')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>G19</b></td>
+                            <td><span class="badge b-old">80%</span></td>
+                            <td>"Diplomat". Simple, reliable mid-efficiency.</td>
+                            <td><button onclick="findManual('Lennox G19')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>G18</b></td>
+                            <td><span class="badge b-alert">Mobile</span></td>
+                            <td>Mobile Home / Downflow specific. Sealed combustion.</td>
+                            <td><button onclick="findManual('Lennox G18')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>G16</b></td>
+                            <td><span class="badge b-old">80%</span></td>
+                            <td>Workhorse of the 80s. Early units: Pilot. Late units: Spark ignition.</td>
+                            <td><button onclick="findManual('Lennox G16')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>G14</b></td>
+                            <td><span class="badge b-alert">Pulse 1</span></td>
+                            <td><b>RECALL.</b> 1st Gen Pulse. Mandatory HX pressure test required.</td>
+                            <td><button onclick="findManual('Lennox G14 Pulse')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>G12</b></td>
+                            <td><span class="badge b-old">Tank</span></td>
+                            <td>"Conservator". Heavy steel HX. Almost indestructible, but inefficient.</td>
+                            <td><button onclick="findManual('Lennox G12')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                        <tr>
+                            <td><b>G8/11</b></td>
+                            <td><span class="badge b-old">60%</span></td>
+                            <td>Ancient. Cast iron burners. Standing pilot. Replace immediately.</td>
+                            <td><button onclick="findManual('Lennox G8')" class="action-btn" style="padding:4px 8px; font-size:0.7rem;">PDF</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-handlers" class="tab-content">
+        <div class="card">
+            <div class="card-header">Air Handler Archive</div>
+            <div class="table-responsive">
+                <table>
+                    <thead><tr><th>Model</th><th>Era</th><th>Notes</th><th>Docs</th></tr></thead>
+                    <tbody>
+                        <tr><td><b>CBA38MV</b></td><td>Current</td><td>Signature. Communicating, VS.</td><td><button onclick="findManual('Lennox CBA38MV')" class="action-btn" style="padding:4px 8px;">PDF</button></td></tr>
+                        <tr><td><b>CBA25/27</b></td><td>Current</td><td>Merit Series. Standard.</td><td><button onclick="findManual('Lennox CBA27')" class="action-btn" style="padding:4px 8px;">PDF</button></td></tr>
+                        <tr><td><b>CBX40UHV</b></td><td>2010s</td><td>Signature. VS. Communicating.</td><td><button onclick="findManual('Lennox CBX40UHV')" class="action-btn" style="padding:4px 8px;">PDF</button></td></tr>
+                        <tr><td><b>CBX32MV</b></td><td>2000s</td><td>Elite VS. Plastic drain pan issues.</td><td><button onclick="findManual('Lennox CBX32MV')" class="action-btn" style="padding:4px 8px;">PDF</button></td></tr>
+                        <tr><td><b>CBX32M</b></td><td>2000s</td><td>Elite Fixed Speed. Very common.</td><td><button onclick="findManual('Lennox CBX32M')" class="action-btn" style="padding:4px 8px;">PDF</button></td></tr>
+                        <tr><td><b>CB30/31</b></td><td>90s/00s</td><td>High efficiency match for 12SEER+.</td><td><button onclick="findManual('Lennox CB30')" class="action-btn" style="padding:4px 8px;">PDF</button></td></tr>
+                        <tr><td><b>CB29</b></td><td>90s</td><td><b>The White Box.</b> Successor to CB19.</td><td><button onclick="findManual('Lennox CB29')" class="action-btn" style="padding:4px 8px;">PDF</button></td></tr>
+                        <tr><td><b>CB26</b></td><td>90s</td><td>Builder grade compact unit.</td><td><button onclick="findManual('Lennox CB26')" class="action-btn" style="padding:4px 8px;">PDF</button></td></tr>
+                        <tr><td><b>CB19</b></td><td>80s</td><td><b>The Beige Box.</b> Heavy steel.</td><td><button onclick="findManual('Lennox CB19')" class="action-btn" style="padding:4px 8px;">PDF</button></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-alerts" class="tab-content">
+        <div class="card" style="border-top-color: #c62828;">
+            <div class="card-header" style="color:#c62828;">Critical Field Alerts</div>
+            <div class="tool-padding">
+                <div style="margin-bottom:20px; padding:15px; background:#ffebee; border-left:5px solid #c62828;">
+                    <strong>🔴 G14 PULSE SAFETY RECALL</strong><br>
+                    Mandatory heat exchanger pressure test required. Known to crack and leak CO. Do not bypass this check.
+                </div>
+                <div style="margin-bottom:20px; padding:15px; background:#fff3e0; border-left:5px solid #ef6c00;">
+                    <strong>🟠 G20 WHISPERHEAT CRACKS</strong><br>
+                    Inspect the "Duracurve" heat exchanger at the dimples on the first bend. High failure rate location.
+                </div>
+                <div style="padding:15px; background:#e3f2fd; border-left:5px solid #1565c0;">
+                    <strong>🔵 GROUNDING SENSITIVITY</strong><br>
+                    SureLight boards (G26/G40) ground through the mounting screws. Loose screws = Intermittent flame dropout.
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="bottom-nav">
+    <button class="nav-item active" onclick="switchTab('tools', this)">
+        <span class="nav-icon">🛠️</span> Tools
+    </button>
+    <button class="nav-item" onclick="switchTab('furnaces', this)">
+        <span class="nav-icon">🔥</span> Furnaces
+    </button>
+    <button class="nav-item" onclick="switchTab('handlers', this)">
+        <span class="nav-icon">❄️</span> Handlers
+    </button>
+    <button class="nav-item" onclick="switchTab('alerts', this)">
+        <span class="nav-icon">⚠️</span> Alerts
+    </button>
+</div>
+
+<script>
+    // --- TAB SWITCHING ---
+    function switchTab(tabId, btn) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.getElementById('tab-' + tabId).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        btn.classList.add('active');
+        window.scrollTo(0,0);
+    }
+
+    // --- MANUAL SEARCH ---
+    function findManual(model) {
+        window.open('https://www.google.com/search?q=' + encodeURIComponent('filetype:pdf Lennox ' + model + ' service manual'), '_blank');
+    }
+
+    // --- SERIAL DECODER ---
+    function decodeSerial() {
+        const raw = document.getElementById("serialInput").value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+        const res = document.getElementById("serialResult");
+        
+        // Modern (1992+)
+        const modern = raw.match(/^(\d{4})([A-M])(\d{5})$/);
+        if (modern) {
+            const y = parseInt(modern[1].substring(2,4));
+            const year = (y < 26) ? "20"+y : "19"+y;
+            const months = {'A':'Jan','B':'Feb','C':'Mar','D':'Apr','E':'May','F':'Jun','G':'Jul','H':'Aug','J':'Sep','K':'Oct','L':'Nov','M':'Dec'};
+            res.style.display = 'block';
+            res.innerHTML = `<b>Modern Format</b><br>Date: <span style="color:#C8102E; font-weight:bold;">${months[modern[2]]} ${year}</span><br>Plant: ${modern[1].substring(0,2)}`;
+            return;
+        }
+
+        // Legacy (1974-1991)
+        const legacy = raw.match(/^(\d{2})([A-Z])(\d+)$/);
+        if (legacy) {
+            const yearMap = {'A':'1974','B':'1975','C':'1976','D':'1977','E':'1978','F':'1979','G':'1980','H':'1981','J':'1982','K':'1983','L':'1984','M':'1985','N':'1986','P':'1987','R':'1988','S':'1989','T':'1990','U':'1991'};
+            if (yearMap[legacy[2]]) {
+                res.style.display = 'block';
+                res.innerHTML = `<b>Legacy Format</b><br>Year: <span style="color:#C8102E; font-weight:bold;">${yearMap[legacy[2]]}</span>`;
+                return;
+            }
+        }
+        
+        res.style.display = 'block';
+        res.innerHTML = "<span style='color:red'>Unrecognized Format</span>";
+    }
+
+    // --- LEGACY LED FAULTS ---
+    function checkLedFault() {
+        const val = document.getElementById("ledSelect").value;
+        const res = document.getElementById("ledResult");
+        if (!val) { res.style.display='none'; return; }
+        
+        const codes = {
+            'off': '<b>No Power / Failure</b><br>Check door switch, transformer, 3A fuse.',
+            'slow': '<b>Normal Idle</b><br>Waiting for call.',
+            'fast': '<b>Normal Heat</b><br>Call detected.',
+            'alt_slow': '<b>Watchguard</b><br>Burner failed to ignite. Check flame sensor & ground.',
+            'alt_fast': '<b>Polarity/Ground</b><br>Reverse polarity or missing ground.',
+            'red_on': '<b>Board Failure</b><br>Replace board.',
+            'red_slow_green_on': '<b>Limit Open</b><br>Check filter/airflow.',
+            'red_off_green_slow': '<b>Pressure Switch</b><br>Check vent/trap.'
+        };
+        res.style.display = 'block';
+        res.innerHTML = codes[val];
+    }
+
+    // --- DIGITAL (7-SEGMENT) CODES DATABASE ---
+    function lookupDigitalCode() {
+        let code = document.getElementById("digitalCodeInput").value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+        const res = document.getElementById("digitalResult");
+        
+        // Common Lennox E-Codes (EL296/SLP98)
+        const db = {
+            '200': 'Hard Lockout (Tried 5 times). Reset power.',
+            '201': 'Lost Communication with Indoor Unit (Communicating systems).',
+            '202': 'Lost Communication with Outdoor Unit.',
+            '223': 'Low Pressure Switch Failed Open.',
+            '224': 'Low Pressure Switch Failed Closed.',
+            '225': 'High Pressure Switch Failed Open.',
+            '226': 'High Pressure Switch Failed Closed.',
+            '227': 'Low Pressure Switch Open during run (Vent/Trap issue).',
+            '228': 'High Pressure Switch Open during run.',
+            '229': 'Ignition failure (Gas/Spark/Sensor).',
+            '250': 'High Limit Switch Open (Overheating).',
+            '270': 'Rollout Switch Open (Flame rollout).',
+            '290': 'Ignitor Circuit Fault.',
+            '292': 'Indoor Blower Motor Fault (Check motor module).',
+            '10': 'Normal Operation (Idle).',
+            'E0': 'Normal Operation (Idle).',
+            'H0': 'Delay mode.'
+        };
+
+        // Normalize input (Remove 'E' if typed, e.g. E228 -> 228)
+        if (code.startsWith('E')) code = code.substring(1);
+
+        res.style.display = 'block';
+        if (db[code]) {
+            res.innerHTML = `<b>Code E${code}</b><br>${db[code]}`;
+        } else {
+            // Partial search
+            let matches = [];
+            for (const key in db) {
+                if (key.includes(code)) matches.push(`<b>E${key}</b>: ${db[key]}`);
+            }
+            
+            if (matches.length > 0) {
+                res.innerHTML = matches.join('<br><hr style="border:0; border-top:1px solid #ddd; margin:5px 0;">');
+            } else {
+                res.innerHTML = "Code not found in database.<br><i>Tip: Type just the number (e.g. 228)</i>";
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
